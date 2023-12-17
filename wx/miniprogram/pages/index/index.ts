@@ -31,7 +31,6 @@ Component({
       })
     },
     onLoad(){
-      this.updataMoto()
 
     },
     onInputChange(e: any) {

@@ -17,3 +17,30 @@ const formatNumber = (n: number) => {
   const s = n.toString()
   return s[1] ? s : '0' + s
 }
+export function getSetting():Promise<WechatMiniprogram.GetSettingSuccessCallbackResult>{
+  return new Promise((resolve,reject)=>{
+    wx.getSetting({
+      //success:res=>resolve(res),
+      //res=>resolve(res)这是个函数，resolve本身也是个函数，res=>resolve(res)意思与直接resolve相同，reject同理
+      success:resolve,
+      fail:reject,
+    })
+  })
+}
+export function getUserInfo():Promise<WechatMiniprogram.GetUserInfoSuccessCallbackResult>{
+  return new Promise((resolve, reject) => {
+    wx.getUserInfo({
+      success:resolve,
+      fail:reject,
+    })
+  })
+}
+export function getUserProfile():Promise< WechatMiniprogram.GetUserProfileSuccessCallbackResult>{
+  return new Promise((resolve, reject) => {
+    wx.getUserProfile({
+      desc: '展示用户信息',
+      success:resolve,
+      fail:reject,
+    })
+  })
+}

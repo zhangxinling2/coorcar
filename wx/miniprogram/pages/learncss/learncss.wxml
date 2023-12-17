@@ -1,0 +1,8 @@
+<!--pages/learncss/learncss.wxml-->
+<text wx:if="{{showPath}}">pages/learncss/learncss.wxml</text>
+<block wx:else>
+    <text>learn css</text>
+</block>
+<view wx:for="{{values}}" wx:for-item="val" wx:key="*this">
+    val is {{val}}
+</view>

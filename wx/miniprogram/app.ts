@@ -1,6 +1,7 @@
 // app.ts
 App<IAppOption>({
-  globalData: {},
+  globalData: {
+  },
   onLaunch() {
     // 展示本地存储能力
     const logs = wx.getStorageSync('logs') || []
@@ -14,5 +15,7 @@ App<IAppOption>({
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
       },
     })
+
+   
   },
 })
