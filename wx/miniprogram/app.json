@@ -1,12 +1,18 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/logs/logs",
     "pages/learncss/learncss"
   ],
   "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
     "navigationBarTextStyle": "black",
-    "navigationStyle": "custom"
+    "navigationBarTitleText": "租辆酷车"
+  },
+  "permission": {
+    "scope.userLocation": {
+        "desc": "你的位置信息将用于租辆酷车"
+    }
   },
   "style": "v2",
   "rendererOptions": {
