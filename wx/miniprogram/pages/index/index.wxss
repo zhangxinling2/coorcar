@@ -21,3 +21,14 @@ page{
     width: 60rpx;
     height: 60rpx;
 }
+.btn-container{
+    width: 600rpx;
+    bottom: 7%;
+    position: absolute;
+    margin-left: 50rpx;
+    height: 70rpx;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7%;
+}

@@ -13,4 +13,7 @@
     src="/resources/my_location.png"
     bindtap="onMyLocationTap"></cover-image>
   </cover-view>
+  <cover-view class="btn-container bg-gray" bindtap="onScanClicked">
+    <cover-view >扫码租车</cover-view>
+  </cover-view>
   </map>

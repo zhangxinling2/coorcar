@@ -1,0 +1,21 @@
+/* pages/lock/lock.wxss */
+page{
+    height: 100%;
+}
+.container{
+    height: 100%;
+    padding-top: 100rpx;
+    padding-bottom: 100rpx;
+}
+.static{
+    text-align: center;
+}
+.sedan{
+    width: 600rpx;
+    height: 360rpx;
+}
+.unLock{
+    width: 600rpx;
+    box-sizing: border-box;
+    min-width: 600rpx;
+}

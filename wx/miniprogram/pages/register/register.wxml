@@ -1,0 +1,46 @@
+<!--pages/register/register.wxml-->
+
+<view class="container">
+    <view class="lic-tmpl" wx:if="{{!licImgURL}}"  bindtap="onUploadLic">
+        <image class="lic-tmpl-img stretch" src="/resources/lic.png"></image>
+        <view class="cuIcon-camerafill lg text-gray"></view>
+        <view class="instruction">请上传驾驶证照片</view>
+    </view>
+    <block wx:else>
+        <view class="lic-tmpl">
+            <image class="stretch" src="{{licImgURL}}" ></image>
+            
+        </view>
+        <view class="lic-form margin-top-lg" >
+            <view class="cu-form-group margin-top">
+                <view class="title">驾驶证号</view>
+                <input placeholder="驾驶证号" value="{{licNo}}" disabled="{{status!=='UnSubmitted'}}"></input>
+            </view>
+            <view class="cu-form-group ">
+                <view class="title">姓名</view>
+                <input placeholder="姓名" value="{{licName}}" disabled="{{status!=='UnSubmitted'}}"></input>
+            </view>
+            <view class="cu-form-group ">
+                <view class="title">普通选择</view>
+                <picker bindchange="onGenderChange" value="{{genderIndex}}" range="{{genders}}" disabled="{{status!=='UnSubmitted'}}">
+                    <view class="picker">
+                        {{genders[genderIndex]}}
+                    </view>
+                </picker>
+            </view>
+            <view class="cu-form-group">
+                <view class="title">日期选择</view>
+                <picker mode="date" value="{{birthData}}" start="2015-09-01" end="2080-09-01" bindchange="onBirthChange" disabled="{{status!=='UnSubmitted'}}">
+                    <view class="picker">
+                        {{birthData}}
+                    </view>
+                </picker>
+            </view>
+        </view>
+        <view >
+            <button bindtap="onSubmit" wx:if="{{status==='UnSubmitted'}}" class="cu-btn bg-red margin-tb-sm lg">递交审查</button>
+            <button wx:if="{{status==='Pending'}}" class="cu-btn block bg-red margin-tb-sm lg" disabled="{{true}}">审查中</button>
+            <button bindtap="onRetry" wx:if="{{status==='SubmittedFailed'}}" class="cu-btn bg-red margin-tb-sm lg">重新审查</button>
+        </view>
+    </block>
+</view>

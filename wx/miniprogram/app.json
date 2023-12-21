@@ -1,7 +1,9 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/learncss/learncss"
+    "pages/learncss/learncss",
+    "pages/register/register",
+    "pages/lock/lock"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -11,7 +13,7 @@
   },
   "permission": {
     "scope.userLocation": {
-        "desc": "你的位置信息将用于租辆酷车"
+      "desc": "你的位置信息将用于租辆酷车"
     }
   },
   "style": "v2",
