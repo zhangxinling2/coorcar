@@ -7,7 +7,20 @@
             <view >请将车辆停放在停车位内</view>
         </view>
     </view>
-    <button  class="bg-grey unLock" bindtap="onTap">
+    <view class="avatar-container">
+        <button class="cu-avatar lg round" wx:if="{{!avatarURL}}" 
+        open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+            <text class="cuIcon-people"></text>
+        </button>
+
+            <view wx:if="{{avatarURL}}" class="switch-container">
+                <image class="cu-avatar lg round" src="{{avatarURL}}" />
+                <switch class="sm" bindchange="onShareSwitch"></switch>
+            </view>
+            <view >实时展示我的头像</view>
+
+    </view>
+    <button  class="bg-grey unLock" bindtap="onUnlockTap">
             立即开锁
     </button>
 </view>

@@ -1,10 +1,24 @@
 // pages/lock/lock.ts
+const shareLocationKey="share_location"
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
+    shareLocation:false,
+    avatarURL:'',
+  },
+  onChooseAvatar(e:any) {
+    console.log(e.detail)
+    this.setData({
+      avatarURL:e.detail.avatarUrl ,
+    })
+  },
+  onShareSwitch(e:any){
+    wx.setStorageSync(shareLocationKey,e.detail.value)
+  },
+  onUnlockTap(){
 
   },
 
@@ -12,7 +26,9 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
-
+    this.setData({
+      shareLocation:wx.getStorageSync(shareLocationKey)||false
+    })
   },
 
   /**
