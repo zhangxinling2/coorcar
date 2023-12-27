@@ -1,5 +1,6 @@
 // pages/lock/lock.ts
 const shareLocationKey="share_location"
+const uploadUrl="120.25.124.86:8081/avatar"
 Page({
 
   /**
@@ -10,16 +11,44 @@ Page({
     avatarURL:'',
   },
   onChooseAvatar(e:any) {
-    console.log(e.detail)
     this.setData({
       avatarURL:e.detail.avatarUrl ,
     })
+    // wx.uploadFile({
+    //   filePath:e.detail,
+    //   name:"avatarImg",
+    //   url:uploadUrl,
+    //   success:res=>{
+    //     console.log(res)
+    //   },
+    // })
   },
   onShareSwitch(e:any){
     wx.setStorageSync(shareLocationKey,e.detail.value)
   },
   onUnlockTap(){
-
+    wx.getLocation({
+      type:'gcj02',
+      success:loc=>{
+        //TODO: 开锁，传值头像和经纬度
+        wx.showLoading({
+          title:'开锁中',
+          mask:true,
+        })
+        setTimeout(() => {
+          
+          wx.redirectTo({
+            url:'/pages/driving/driving',
+            complete:()=>wx.hideLoading(),
+          })
+        },2000);
+      },
+      fail:()=>wx.showToast({
+        icon:'none',
+        title:"请前往设置页授权位置信息"
+      })
+    })
+    
   },
 
   /**

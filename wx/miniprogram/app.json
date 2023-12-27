@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/learncss/learncss",
     "pages/register/register",
-    "pages/lock/lock"
+    "pages/lock/lock",
+    "pages/driving/driving"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -16,6 +17,8 @@
       "desc": "你的位置信息将用于租辆酷车"
     }
   },
+  
+"requiredPrivateInfos": ["getLocation","startLocationUpdate","onLocationChange"],
   "style": "v2",
   "rendererOptions": {
     "skyline": {
