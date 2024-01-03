@@ -9,7 +9,7 @@
     <block wx:else>
         <view class="lic-tmpl">
             <image class="stretch" src="{{licImgURL}}" ></image>
-            
+            <image wx:if="{{status==='Verified'}}" class="check" src="/resources/check.png" />
         </view>
         <view class="lic-form margin-top-lg" >
             <view class="cu-form-group margin-top">

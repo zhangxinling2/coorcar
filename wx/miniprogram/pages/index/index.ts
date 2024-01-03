@@ -1,4 +1,7 @@
 // index.ts
+
+import { routing } from "../../utils/routing"
+
 // 获取应用实例
 const app = getApp<IAppOption>()
 const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
@@ -94,5 +97,26 @@ Page({
       })
     }
     moveCar()
+  },
+  onScanTap(){
+    wx.scanCode({
+      success:()=>{
+        const carId='car123'
+        const redirectURL=routing.lock({
+          car_id:carId
+        })
+        wx.navigateTo({
+          url:routing.register({
+            redirectURL:redirectURL
+          })
+        })
+      },
+      fail:console.error
+    })
+  },
+  onMyTripsTap(){
+    wx.navigateTo({
+      url:routing.mytrips(),
+    })
   }
 })

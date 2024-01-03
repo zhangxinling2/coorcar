@@ -1,3 +1,5 @@
+import { routing } from "../../utils/routing"
+
 // pages/lock/lock.ts
 const shareLocationKey="share_location"
 const uploadUrl="120.25.124.86:8081/avatar"
@@ -30,6 +32,7 @@ Page({
     wx.getLocation({
       type:'gcj02',
       success:loc=>{
+        const tripID='trip456'
         //TODO: 开锁，传值头像和经纬度
         wx.showLoading({
           title:'开锁中',
@@ -38,7 +41,9 @@ Page({
         setTimeout(() => {
           
           wx.redirectTo({
-            url:'/pages/driving/driving',
+            url:routing.driving({
+              trip_id: tripID
+            }),
             complete:()=>wx.hideLoading(),
           })
         },2000);
@@ -54,7 +59,9 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad() {
+  onLoad(opt:Record<'car_id',string>) {
+    const o:routing.LockOpts=opt
+    console.log('unlocking car',o.car_id)
     this.setData({
       shareLocation:wx.getStorageSync(shareLocationKey)||false
     })

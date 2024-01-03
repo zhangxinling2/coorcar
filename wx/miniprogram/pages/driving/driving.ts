@@ -1,3 +1,5 @@
+import { routing } from "../../utils/routing"
+
 // pages/driving/driving.ts
 const centPerSec=0.7
 Page({
@@ -57,7 +59,9 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad() {
+  onLoad(opt:Record<'trip_id',string>) {
+    const o:routing.DrivingOpts=opt
+    console.log('trip',o.trip_id)
     this.setupLocationUpdate()
     this.setupTimer()
   },

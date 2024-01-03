@@ -1,12 +1,14 @@
-.container{
+.container {
     padding-top: 25rpx;
-    
+
 }
-.stretch{
+
+.stretch {
     width: 100%;
     height: 100%;
 }
-.lic-tmpl{
+
+.lic-tmpl {
     position: relative;
     width: 650rpx;
     height: 400rpx;
@@ -14,21 +16,34 @@
     justify-content: center;
     align-items: center;
 }
-.lic-tmpl-img{
-    
+
+.lic-tmpl-img {
+
     opacity: .2;
 }
-.cuIcon-camerafill{
+
+.cuIcon-camerafill {
     font-size: 172rpx;
     position: absolute;
 }
-.instruction{
+
+.instruction {
     position: absolute;
     bottom: -74rpx;
 }
-.lic-form{
+
+.lic-form {
     width: 600rpx;
 }
+
 .cu-form-group .title {
     min-width: calc(4em + 30rpx);
-  }
+}
+
+.check {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100rpx;
+    height: 100rpx;
+}

@@ -1,6 +1,8 @@
+import { routing } from "../../utils/routing";
+
 // pages/register/register.ts
 Page({
-
+  redirectURL:'',
   /**
    * 页面的初始数据
    */
@@ -61,15 +63,21 @@ Page({
     this.setData({
       status:'Verified',
     })
-    wx.redirectTo({
-      url:'/pages/lock/lock',
-    })
+    if(this.redirectURL){
+      wx.redirectTo({
+        url:this.redirectURL,
+      })
+    }
+    
   },
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad() {
-
+  onLoad(opt:Record<'redirect',string>) {
+    const o: routing.RegisterOpts =opt
+    if(o.redirect){
+      this.redirectURL=decodeURIComponent(o.redirect)
+    }
   },
 
   /**
