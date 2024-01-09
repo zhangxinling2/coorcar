@@ -11,5 +11,9 @@
   "devDependencies": {
     "miniprogram-api-typings": "^2.8.3-1",
     "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "camelcase-keys": "^6.2.2",
+    "protobufjs": "^6.10.1"
   }
 }
