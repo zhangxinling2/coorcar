@@ -16,3 +16,8 @@ func Set(v interface{}) bson.M {
 		"$set": v,
 	}
 }
+func SetOnInsert(v interface{}) bson.M {
+	return bson.M{
+		"$setOnInsert": v,
+	}
+}
