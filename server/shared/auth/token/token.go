@@ -8,12 +8,12 @@ import (
 )
 
 type JWTTokenVerify struct {
-	publicKey *rsa.PublicKey
+	PublicKey *rsa.PublicKey
 }
 
 func (v *JWTTokenVerify) Verify(token string) (string, error) {
 	tk, err := jwt.ParseWithClaims(token, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return v.publicKey, nil
+		return v.PublicKey, nil
 	})
 	if err != nil {
 		return "", fmt.Errorf("cannot parse token:%v", err)

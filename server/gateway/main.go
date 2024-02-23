@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	authpb "coolcar/auth/api/gen/v1"
+	rentalpb "coolcar/rental/api/gen/v1"
 	"log"
 	"net/http"
 
@@ -19,6 +20,7 @@ func main() {
 	m.UseEnumNumbers = true
 	mux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &m))
 	err := authpb.RegisterAuthServiceHandlerFromEndpoint(c, mux, "localhost:8081", []grpc.DialOption{grpc.WithInsecure()})
+	err = rentalpb.RegisterTripServiceHandlerFromEndpoint(c, mux, "localhost:8082", []grpc.DialOption{grpc.WithInsecure()})
 	if err != nil {
 		log.Fatal("connot register", err)
 	}

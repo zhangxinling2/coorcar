@@ -61,7 +61,7 @@ func TestVerify(t *testing.T) {
 				return tc.now
 			}
 			v := &JWTTokenVerify{
-				publicKey: pk,
+				PublicKey: pk,
 			}
 			res, err := v.Verify(tc.tkn)
 			if !tc.wantErr && err != nil {
