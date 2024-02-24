@@ -34,7 +34,7 @@ func main() {
 	}
 	m := dao.NewMongo(mo.Database("coolcar"))
 	//组装privateKey
-	file, err := os.Open("private.key")
+	file, err := os.Open("auth/private.key")
 	if err != nil {
 		logger.Fatal("cannot open private.key", zap.Error(err))
 	}
@@ -59,7 +59,7 @@ func main() {
 		Mongo:          m,
 		Logger:         logger,
 		TokenGenerator: token.NewJwtTokenGen("coolcar/auth", pk),
-		TokenExpire:    2 * time.Hour,
+		TokenExpire:    10 * time.Second,
 	})
 	err = s.Serve(n)
 	if err != nil {

@@ -1,3 +1,4 @@
+import { TripService } from "../../service/proto_gen/trip"
 import { routing } from "../../utils/routing"
 
 // pages/lock/lock.ts
@@ -33,6 +34,10 @@ Page({
       type:'gcj02',
       success:loc=>{
         const tripID='trip456'
+        TripService.CreateTrip({
+          start:'abc',
+        })
+        return
         //TODO: 开锁，传值头像和经纬度
         wx.showLoading({
           title:'开锁中',
