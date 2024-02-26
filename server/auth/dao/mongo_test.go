@@ -2,25 +2,23 @@ package dao
 
 import (
 	"context"
+	"coolcar/shared/id"
 	mgo "coolcar/shared/mongo"
+	"coolcar/shared/mongo/objid"
 	mongotesting "coolcar/shared/mongo/testing"
 	"os"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-var mongoURI string
 
 func TestResolveAccountID(t *testing.T) {
 	testcases := []struct {
 		name   string
 		openId string
 		want   string
-		res    string
+		res    id.AccountId
 		err    error
 	}{
 		{
@@ -40,35 +38,34 @@ func TestResolveAccountID(t *testing.T) {
 		},
 	}
 	c := context.Background()
-	mo, err := mongo.Connect(c, options.Client().ApplyURI(mongoURI))
+	mo, err := mongotesting.NewClient(c)
 	if err != nil {
 		t.Fatalf("cannot connect %v", err)
 	}
 	m := NewMongo(mo.Database("coolcar"))
 	_, err = m.col.InsertMany(c, []interface{}{
 		bson.M{
-			openIdField: "123",
-			mgo.IDField: NewObjId("65a713221b886d3a9bba21e3"),
+			openIdField:     "123",
+			mgo.IDFieldName: objid.MustFromId(id.AccountId("65a713221b886d3a9bba21e3")),
 		},
 		bson.M{
-			openIdField: "456",
-			mgo.IDField: NewObjId("65a713221b886d3a9bba21e4"),
+			openIdField:     "456",
+			mgo.IDFieldName: objid.MustFromId(id.AccountId("65a713221b886d3a9bba21e4")),
 		},
 	})
 	if err != nil {
 		panic(err)
 	}
-	newId := func() primitive.ObjectID {
-		return NewObjId("65a713221b886d3a9bba21e5")
+	mgo.NewObjId = func() primitive.ObjectID {
+		return objid.MustFromId(id.AccountId("65a713221b886d3a9bba21e5"))
 	}
-	m.objId = newId
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.res, err = m.ResolveAccountID(c, tc.openId)
 			if err != nil {
 				t.Errorf("failed resolve %v", err)
 			} else {
-				if tc.res != tc.want {
+				if tc.res.String() != tc.want {
 					t.Errorf("resolve error id: %q want :%q", tc.res, tc.want)
 				}
 			}
@@ -84,5 +81,5 @@ func NewObjId(id string) primitive.ObjectID {
 	return objId
 }
 func TestMain(m *testing.M) {
-	os.Exit(mongotesting.NewWithMongoDocker(m, &mongoURI))
+	os.Exit(mongotesting.NewWithMongoDocker(m))
 }

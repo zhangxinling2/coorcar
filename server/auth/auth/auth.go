@@ -36,7 +36,7 @@ func (s *Service) Login(ctx context.Context, req *authpb.LoginRequest) (*authpb.
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot resolve accountid: %v", err)
 	}
-	tk, err := s.TokenGenerator.GenerateToken(accountId, time.Duration(s.TokenExpire))
+	tk, err := s.TokenGenerator.GenerateToken(accountId.String(), time.Duration(s.TokenExpire))
 	if err != nil {
 		s.Logger.Fatal("cannot generate token" + err.Error())
 		return nil, status.Errorf(codes.Internal, "cannot generate token:%v", err)

@@ -10,14 +10,20 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	image         = "mongo"
-	containerPort = "27017/tcp"
+	image           = "mongo"
+	containerPort   = "27017/tcp"
+	defaultMongoURI = "mongodb://localhost:27017"
 )
 
-func NewWithMongoDocker(m *testing.M, mongoURI *string) int {
+var mongoURI string
+
+func NewWithMongoDocker(m *testing.M) int {
 	dc, err := client.NewClientWithOpts()
 	if err != nil {
 		log.Fatalf("fail new client %v", err)
@@ -56,6 +62,36 @@ func NewWithMongoDocker(m *testing.M, mongoURI *string) int {
 		log.Fatalf("fail inspect container %v", err)
 	}
 	hostPort := inspRes.NetworkSettings.Ports[containerPort][0]
-	*mongoURI = fmt.Sprintf("mongodb://%s:%s", hostPort.HostIP, hostPort.HostPort)
+	mongoURI = fmt.Sprintf("mongodb://%s:%s", hostPort.HostIP, hostPort.HostPort)
 	return m.Run()
+}
+func NewClient(ctx context.Context) (*mongo.Client, error) {
+	return mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
+}
+func NewDefaultClient(ctx context.Context) (*mongo.Client, error) {
+	return mongo.Connect(ctx, options.Client().ApplyURI(defaultMongoURI))
+}
+func CreateIndexes(ctx context.Context, db *mongo.Database) error {
+	_, err := db.Collection("auth").Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "open_id", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		return err
+	}
+	_, err = db.Collection("trip").Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "trip.accountid", Value: 1},
+			{Key: "trip.status", Value: 1},
+		},
+		Options: options.Index().SetUnique(true).SetPartialFilterExpression(bson.M{
+			"trip.status": 1,
+		}),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
