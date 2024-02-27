@@ -1,6 +1,8 @@
 package mgo
 
 import (
+	"coolcar/shared/mongo/objid"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -9,10 +11,17 @@ import (
 
 const (
 	IDFieldName        = "_id"
-	UpdatedAtFieldName = "updatedAt"
+	UpdatedAtFieldName = "updatedat"
 )
 
 var NewObjId = primitive.NewObjectID
+
+func NewObjIdWithValue(id fmt.Stringer) {
+	NewObjId = func() primitive.ObjectID {
+		return objid.MustFromId(id)
+	}
+}
+
 var NewUpdatedAt = func() int64 {
 	return time.Now().UnixNano()
 }
