@@ -55,8 +55,8 @@ export namespace rental {
         /** Properties of a LocationStatus. */
         interface ILocationStatus {
 
-            /** LocationStatus current */
-            current?: (rental.v1.ILocation|null);
+            /** LocationStatus location */
+            location?: (rental.v1.ILocation|null);
 
             /** LocationStatus feeCent */
             feeCent?: (number|null);
@@ -77,8 +77,8 @@ export namespace rental {
              */
             constructor(properties?: rental.v1.ILocationStatus);
 
-            /** LocationStatus current. */
-            public current?: (rental.v1.ILocation|null);
+            /** LocationStatus location. */
+            public location?: (rental.v1.ILocation|null);
 
             /** LocationStatus feeCent. */
             public feeCent: number;
