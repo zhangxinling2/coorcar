@@ -9,6 +9,7 @@ Page({
   /**
    * 页面的初始数据
    */
+  carId:'',
   data: {
     shareLocation:false,
     avatarURL:'',
@@ -32,12 +33,15 @@ Page({
   onUnlockTap(){
     wx.getLocation({
       type:'gcj02',
-      success:loc=>{
-        const tripID='trip456'
-        TripService.CreateTrip({
-          start:'abc',
+      success:async loc=>{
+        const trip=await  TripService.CreateTrip({
+          start:{
+              longitude:loc.longitude,
+              latitude:loc.latitude,
+          },
+          carId:this.carId
         })
-        return
+        console.log(trip)
         //TODO: 开锁，传值头像和经纬度
         wx.showLoading({
           title:'开锁中',
@@ -47,7 +51,7 @@ Page({
           
           wx.redirectTo({
             url:routing.driving({
-              trip_id: tripID
+              trip_id: trip.id!,
             }),
             complete:()=>wx.hideLoading(),
           })
@@ -66,7 +70,7 @@ Page({
    */
   onLoad(opt:Record<'car_id',string>) {
     const o:routing.LockOpts=opt
-    console.log('unlocking car',o.car_id)
+    this.carId=o.car_id
     this.setData({
       shareLocation:wx.getStorageSync(shareLocationKey)||false
     })

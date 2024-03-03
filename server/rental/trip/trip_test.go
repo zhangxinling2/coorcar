@@ -41,11 +41,9 @@ func TestCreateTrip(t *testing.T) {
 	s.Mongo = dao.NewMongo(client.Database("coolcar"))
 	req := &rentalpb.CreateTripRequest{
 		CarId: "car1",
-		Start: &rentalpb.LocationStatus{
-			Location: &rentalpb.Location{
-				Latitude:  32.123,
-				Longitude: 114.2525,
-			},
+		Start: &rentalpb.Location{
+			Latitude:  32.123,
+			Longitude: 114.2525,
 		},
 	}
 	goldenRes := `{"account_id":"account1","car_id":"car1","start":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔"},"current":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔"},"identity_id":"identity1"}`
@@ -113,11 +111,11 @@ func TestCreateTrip(t *testing.T) {
 }
 
 type profileManager struct {
-	ID  id.IndetityId
+	ID  id.IdentityId
 	Err error
 }
 
-func (p *profileManager) Verify(ctx context.Context, id id.AccountId) (id.IndetityId, error) {
+func (p *profileManager) Verify(ctx context.Context, id id.AccountId) (id.IdentityId, error) {
 	return p.ID, p.Err
 }
 

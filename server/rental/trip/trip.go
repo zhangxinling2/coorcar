@@ -22,7 +22,7 @@ type Service struct {
 	rentalpb.UnimplementedTripServiceServer
 }
 type ProfileManager interface {
-	Verify(ctx context.Context, id id.AccountId) (id.IndetityId, error)
+	Verify(ctx context.Context, id id.AccountId) (id.IdentityId, error)
 }
 type CarManager interface {
 	Verify(ctx context.Context, id id.CarId, loc *rentalpb.Location) error
@@ -41,16 +41,16 @@ func (s *Service) CreateTrip(ctx context.Context, req *rentalpb.CreateTripReques
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "")
 	}
-	err = s.CarManager.Verify(ctx, id.CarId(req.CarId), req.Start.Location)
+	err = s.CarManager.Verify(ctx, id.CarId(req.CarId), req.Start)
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "")
 	}
-	poi, err := s.PoiManager.Resolve(ctx, req.Start.Location)
+	poi, err := s.PoiManager.Resolve(ctx, req.Start)
 	if err != nil {
-		s.Logger.Info("cannot resolve location to name", zap.Stringer("location", req.Start.Location))
+		s.Logger.Info("cannot resolve location to name", zap.Stringer("location", req.Start))
 	}
 	start := &rentalpb.LocationStatus{
-		Location: req.Start.Location,
+		Location: req.Start,
 		PoiName:  poi,
 	}
 	tr, err := s.Mongo.CreateTrip(ctx, &rentalpb.Trip{

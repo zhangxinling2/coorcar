@@ -12,9 +12,9 @@ func (a TripId) String() string {
 	return string(a)
 }
 
-type IndetityId string
+type IdentityId string
 
-func (a IndetityId) String() string {
+func (a IdentityId) String() string {
 	return string(a)
 }
 
