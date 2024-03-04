@@ -11,7 +11,7 @@ export namespace Coolcar{
     export interface RequestOption<REQ,RES>{
         method:'PUT'|'POST'|'GET'|'DEL',
         path:string,
-        data:REQ,
+        data?:REQ,
         respUnmarshaller:(r:object)=>RES
     }
     interface AuthOption{

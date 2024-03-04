@@ -9,4 +9,22 @@ export namespace TripService{
                 respUnmarshaller:rental.v1.TripEntity.fromObject
             },)
     }
+    export function GetTrip(id:string):Promise<rental.v1.ITrip>{
+        return Coolcar.sendRequestWithAuthRetry({
+            method:'GET',
+            path:`v1/trip/get/${encodeURIComponent(id)}`,
+            respUnmarshaller:rental.v1.Trip.fromObject
+        })
+    }
+    export function GetTrips(s?:rental.v1.TripStatus):Promise<rental.v1.IGetTripsReponse>{
+        let path='v1/trips'
+        if (s){
+            path+=`?status=${s}`
+        }
+        return Coolcar.sendRequestWithAuthRetry({
+            method:'GET',
+            path:path,
+            respUnmarshaller:rental.v1.GetTripsReponse.fromObject
+        })
+    }
 }

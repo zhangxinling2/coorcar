@@ -11,6 +11,7 @@ import (
 	mongotesting "coolcar/shared/mongo/testing"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"testing"
 
@@ -46,8 +47,10 @@ func TestCreateTrip(t *testing.T) {
 			Longitude: 114.2525,
 		},
 	}
-	goldenRes := `{"account_id":"account1","car_id":"car1","start":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔"},"current":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔"},"identity_id":"identity1"}`
-
+	goldenRes := `{"account_id":"account1","car_id":"car1","start":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔","timestamp_sec":1709556870},"current":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔","timestamp_sec":1709556870},"identity_id":"identity1"}`
+	nowFunc = func() int64 {
+		return 1709556870
+	}
 	testCases := []struct {
 		name           string
 		tripId         string
@@ -130,7 +133,131 @@ func (c *carManager) Verify(ctx context.Context, id id.CarId, loc *rentalpb.Loca
 func (c *carManager) UnLock(ctx context.Context, id id.CarId) error {
 	return c.UnlockErr
 }
+func TestLifeCycle(t *testing.T) {
+	c := context.Background()
+	c = auth.ContextWithAccountId(c, id.AccountId("account_for_lifecycle"))
+	s := newService(c, t, &profileManager{}, &carManager{})
+	tid := id.TripId("5f8132eb22714bf629489056")
+	mgo.NewObjIdWithValue(tid)
+	testCases := []struct {
+		name    string
+		now     int64
+		want    string
+		wantErr bool
+		op      func() (*rentalpb.Trip, error)
+	}{
 
+		{
+			name: "create_trip",
+			now:  10000,
+			op: func() (*rentalpb.Trip, error) {
+				e, err := s.CreateTrip(c, &rentalpb.CreateTripRequest{
+					CarId: "car1",
+					Start: &rentalpb.Location{
+						Latitude:  32.123,
+						Longitude: 114.2525,
+					},
+				})
+				if err != nil {
+					return nil, err
+				}
+				return e.Trip, nil
+			},
+			want: `{"account_id":"account_for_lifecycle","car_id":"car1","start":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔","timestamp_sec":10000},"current":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔","timestamp_sec":10000},"status":1}`,
+		},
+		{
+			name: "update_trip",
+			now:  20000,
+			op: func() (*rentalpb.Trip, error) {
+				return s.UpdateTrip(c, &rentalpb.UpdateTripRequest{
+					Id: tid.String(),
+					Current: &rentalpb.Location{
+						Latitude:  28.234234,
+						Longitude: 123.243255,
+					},
+				})
+			},
+			want: `{"account_id":"account_for_lifecycle","car_id":"car1","start":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔","timestamp_sec":10000},"current":{"location":{"latitude":28.234234,"longitude":123.243255},"fee_cent":10677,"km_driven":110.22457407124267,"poi_name":"广州塔","timestamp_sec":20000},"status":1}`,
+		},
+		{
+			name: "finish_trip",
+			now:  30000,
+			op: func() (*rentalpb.Trip, error) {
+				return s.UpdateTrip(c, &rentalpb.UpdateTripRequest{
+					Id:      tid.String(),
+					EndTrip: true,
+				})
+			},
+			want: `{"account_id":"account_for_lifecycle","car_id":"car1","start":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔","timestamp_sec":10000},"current":{"location":{"latitude":28.234234,"longitude":123.243255},"fee_cent":18853,"km_driven":215.53264623224982,"poi_name":"广州塔","timestamp_sec":30000},"end":{"location":{"latitude":28.234234,"longitude":123.243255},"fee_cent":18853,"km_driven":215.53264623224982,"poi_name":"广州塔","timestamp_sec":30000},"status":2}`,
+		},
+		{
+			name: "query_trip",
+			now:  40000,
+			op: func() (*rentalpb.Trip, error) {
+				return s.GetTrip(c, &rentalpb.GetTripRequest{
+					Id: tid.String(),
+				})
+			},
+			want: `{"account_id":"account_for_lifecycle","car_id":"car1","start":{"location":{"latitude":32.123,"longitude":114.2525},"poi_name":"广州塔","timestamp_sec":10000},"current":{"location":{"latitude":28.234234,"longitude":123.243255},"fee_cent":18853,"km_driven":215.53264623224982,"poi_name":"广州塔","timestamp_sec":30000},"end":{"location":{"latitude":28.234234,"longitude":123.243255},"fee_cent":18853,"km_driven":215.53264623224982,"poi_name":"广州塔","timestamp_sec":30000},"status":2}`,
+		},
+		{
+			name: "update_after_finished",
+			now:  50000,
+			op: func() (*rentalpb.Trip, error) {
+				return s.UpdateTrip(c, &rentalpb.UpdateTripRequest{
+					Id: tid.String(),
+				})
+			},
+			wantErr: true,
+		},
+	}
+	rand.Seed(1345)
+	for _, cc := range testCases {
+		nowFunc = func() int64 {
+			return cc.now
+		}
+		trip, err := cc.op()
+		if cc.wantErr {
+			if err == nil {
+				t.Errorf("%s: want error; got none", cc.name)
+			} else {
+				continue
+			}
+		}
+		if err != nil {
+			t.Errorf("%s: operation failed: %v", cc.name, err)
+			continue
+		}
+		b, err := json.Marshal(trip)
+		if err != nil {
+			t.Errorf("%s: failed marshalling response: %v", cc.name, err)
+		}
+		got := string(b)
+		if cc.want != got {
+			t.Errorf("%s: incorrect response; want: %s, got: %s", cc.name, cc.want, got)
+		}
+	}
+}
+func newService(c context.Context, t *testing.T, pm ProfileManager, cm CarManager) *Service {
+	z, err := zap.NewDevelopment()
+	if err != nil {
+		t.Error("cannot create zap log", err.Error())
+	}
+	client, err := mongotesting.NewClient(c)
+	if err != nil {
+		t.Error("cannot create mongoclient")
+	}
+	db := client.Database("coolcar")
+	mongo := dao.NewMongo(db)
+	mongotesting.CreateIndexes(c, db)
+	return &Service{
+		Logger:         z,
+		Mongo:          mongo,
+		ProfileManager: pm,
+		CarManager:     cm,
+		PoiManager:     &poi.Manager{},
+	}
+}
 func TestMain(m *testing.M) {
 	os.Exit(mongotesting.NewWithMongoDocker(m))
 }

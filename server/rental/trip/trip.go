@@ -2,6 +2,8 @@ package trip
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	rentalpb "coolcar/rental/api/gen/v1"
 	"coolcar/rental/trip/dao"
@@ -45,19 +47,16 @@ func (s *Service) CreateTrip(ctx context.Context, req *rentalpb.CreateTripReques
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "")
 	}
-	poi, err := s.PoiManager.Resolve(ctx, req.Start)
-	if err != nil {
-		s.Logger.Info("cannot resolve location to name", zap.Stringer("location", req.Start))
-	}
-	start := &rentalpb.LocationStatus{
-		Location: req.Start,
-		PoiName:  poi,
-	}
+	start := s.calcCurrentStatus(ctx, &rentalpb.LocationStatus{
+		Location:     req.Start,
+		TimestampSec: nowFunc(),
+	}, req.Start)
 	tr, err := s.Mongo.CreateTrip(ctx, &rentalpb.Trip{
 		AccountId:  aid.String(),
 		CarId:      req.CarId,
 		Start:      start,
 		Current:    start,
+		Status:     rentalpb.TripStatus_IN_PROGRESS,
 		IdentityId: iId.String(),
 	})
 	if err != nil {
@@ -75,11 +74,94 @@ func (s *Service) CreateTrip(ctx context.Context, req *rentalpb.CreateTripReques
 	}, nil
 }
 func (s *Service) GetTrip(ctx context.Context, req *rentalpb.GetTripRequest) (*rentalpb.Trip, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTrip not implemented")
+	aid, err := auth.AccountIdFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	tr, err := s.Mongo.GetTrip(ctx, id.TripId(req.Id), aid)
+	if err != nil {
+		s.Logger.Error("cannot get trip", zap.Error(err))
+		return nil, status.Error(codes.NotFound, "")
+	}
+	return tr.Trip, nil
 }
 func (s *Service) GetTrips(ctx context.Context, req *rentalpb.GetTripsRequest) (*rentalpb.GetTripsReponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTrips not implemented")
+	aid, err := auth.AccountIdFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	trs, err := s.Mongo.GetTrips(ctx, aid, req.Status)
+	if err != nil {
+		s.Logger.Error("cannot get trips", zap.Error(err))
+		return nil, status.Error(codes.Internal, "")
+	}
+	var res []*rentalpb.TripEntity
+	for _, tr := range trs {
+		ent := &rentalpb.TripEntity{
+			Id:   tr.ID.String(),
+			Trip: tr.Trip,
+		}
+		res = append(res, ent)
+	}
+	return &rentalpb.GetTripsReponse{
+		Trips: res,
+	}, nil
 }
 func (s *Service) UpdateTrip(ctx context.Context, req *rentalpb.UpdateTripRequest) (*rentalpb.Trip, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTrip not implemented")
+	aid, err := auth.AccountIdFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	tid := id.TripId(req.Id)
+	tr, err := s.Mongo.GetTrip(ctx, tid, aid)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "")
+	}
+	if tr.Trip.Status == rentalpb.TripStatus_FINISHED {
+		return nil, status.Error(codes.FailedPrecondition, "cannot update a finished trip")
+	}
+	if tr.Trip.Current == nil {
+		s.Logger.Error("trip without current set", zap.String("id", tid.String()))
+		return nil, status.Error(codes.Internal, "")
+	}
+	cur := tr.Trip.Current.Location
+	if req.Current != nil {
+		cur = req.Current
+	}
+
+	tr.Trip.Current = s.calcCurrentStatus(ctx, tr.Trip.Current, cur)
+	if req.EndTrip {
+		tr.Trip.End = tr.Trip.Current
+		tr.Trip.Status = rentalpb.TripStatus_FINISHED
+	}
+	err = s.Mongo.UpdateTrip(ctx, id.TripId(req.Id), aid, tr.UpdatedAt, tr.Trip)
+	if err != nil {
+		return nil, status.Error(codes.Aborted, "")
+	}
+	return tr.Trip, nil
+}
+
+const (
+	centsPerSec = 0.7
+	kmPerSec    = 0.02
+)
+
+var nowFunc = func() int64 {
+	return time.Now().Unix()
+}
+
+func (s *Service) calcCurrentStatus(ctx context.Context, last *rentalpb.LocationStatus, cur *rentalpb.Location) *rentalpb.LocationStatus {
+	now := nowFunc()
+	elaspedSec := float64(now - last.TimestampSec)
+	poi, err := s.PoiManager.Resolve(ctx, cur)
+	if err != nil {
+		s.Logger.Info("cannot resolve location to name", zap.Stringer("location", cur))
+	}
+	return &rentalpb.LocationStatus{
+		Location:     cur,
+		KmDriven:     last.KmDriven + kmPerSec*elaspedSec*2*rand.Float64(),
+		FeeCent:      last.FeeCent + int32(centsPerSec*elaspedSec*2*rand.Float64()),
+		PoiName:      poi,
+		TimestampSec: now,
+	}
 }
