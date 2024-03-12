@@ -4,6 +4,7 @@ import (
 	"context"
 	authpb "coolcar/auth/api/gen/v1"
 	rentalpb "coolcar/rental/api/gen/v1"
+	"coolcar/shared/server"
 	"log"
 	"net/http"
 
@@ -12,6 +13,10 @@ import (
 )
 
 func main() {
+	lg, err := server.NewZapLog()
+	if err != nil {
+		lg.Sugar().Fatal("cannot new log")
+	}
 	c := context.Background()
 	c, cancel := context.WithCancel(c)
 	defer cancel()
@@ -19,13 +24,32 @@ func main() {
 	m.UseProtoNames = true
 	m.UseEnumNumbers = true
 	mux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &m))
-	err := authpb.RegisterAuthServiceHandlerFromEndpoint(c, mux, "localhost:8081", []grpc.DialOption{grpc.WithInsecure()})
-	err = rentalpb.RegisterTripServiceHandlerFromEndpoint(c, mux, "localhost:8082", []grpc.DialOption{grpc.WithInsecure()})
-	if err != nil {
-		log.Fatal("connot register", err)
+	serverConfig := []struct {
+		name         string
+		addr         string
+		registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error)
+	}{
+		{
+			name:         "auth service",
+			addr:         "localhost:8081",
+			registerFunc: authpb.RegisterAuthServiceHandlerFromEndpoint,
+		},
+		{
+			name:         "trip service",
+			addr:         "localhost:8082",
+			registerFunc: rentalpb.RegisterTripServiceHandlerFromEndpoint,
+		},
+		{
+			name:         "profile service",
+			addr:         "localhost:8082",
+			registerFunc: rentalpb.RegisterProfileServiceHandlerFromEndpoint,
+		},
 	}
-	err = http.ListenAndServe(":8080", mux)
-	if err != nil {
-		log.Fatal("connot http", err)
+	for _, s := range serverConfig {
+		err := s.registerFunc(c, mux, s.addr, []grpc.DialOption{grpc.WithInsecure()})
+		if err != nil {
+			log.Fatal("connot register", err)
+		}
 	}
+	lg.Sugar().Fatal(http.ListenAndServe(":8080", mux))
 }
