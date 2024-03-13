@@ -15,7 +15,7 @@
 
             <view wx:if="{{avatarURL}}" class="switch-container">
                 <image class="cu-avatar lg round" src="{{avatarURL}}" />
-                <switch class="sm" bindchange="onShareSwitch"></switch>
+                <switch class="sm" bindchange="onShareSwitch" checked="{{shareLocation}}"></switch>
             </view>
             <view >实时展示我的头像</view>
 

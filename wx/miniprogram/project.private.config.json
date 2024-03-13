@@ -10,6 +10,13 @@
       "list": [
         {
           "name": "",
+          "pathName": "pages/register/register",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "",
           "pathName": "pages/lock/lock",
           "query": "car_id=car1",
           "launchMode": "default",
@@ -46,5 +53,5 @@
       ]
     }
   },
-  "libVersion": "3.2.5"
+  "libVersion": "2.19.6"
 }

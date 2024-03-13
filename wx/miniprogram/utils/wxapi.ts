@@ -35,12 +35,3 @@ export function getUserInfo():Promise<WechatMiniprogram.GetUserInfoSuccessCallba
     })
   })
 }
-export function getUserProfile():Promise< WechatMiniprogram.GetUserProfileSuccessCallbackResult>{
-  return new Promise((resolve, reject) => {
-    wx.getUserProfile({
-      desc: '展示用户信息',
-      success:resolve,
-      fail:reject,
-    })
-  })
-}

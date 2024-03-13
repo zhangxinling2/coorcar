@@ -1,25 +1,42 @@
-import camelcaseKeys from "camelcase-keys"
 import { IAppOption } from "./appoption"
-import { auth } from "./service/proto_gen/auth_pb"
-import { rental } from "./service/proto_gen/rental_pb"
 import { Coolcar } from "./service/proto_gen/request"
-
+import { getSetting, getUserInfo } from "./utils/wxapi"
+let resolveUserInfo: (value: WechatMiniprogram.UserInfo | PromiseLike<WechatMiniprogram.UserInfo>) => void
+let rejectUserInfo: (reason?: any) => void
 // app.ts
 App<IAppOption>({
   globalData: {
+    userInfo: new Promise((resolve, reject) => {
+      resolveUserInfo = resolve
+      rejectUserInfo = reject
+    })
+  },
+  resolveUserInfo(userInfo: WechatMiniprogram.UserInfo) {
+    resolveUserInfo(userInfo)
   },
   async onLaunch() {
-      // wx.request({
-      //     url:"http://localhost:8080/trip/trip123",
-      //     method:"GET",
-      //     success:res=>{
-      //       const getTripResp=coolcar.GetTripResponse.fromObject(camelcaseKeys(res.data as object,{deep:true}))
-      //       console.log(getTripResp)
-      //       console.log(coolcar.TripStatus[getTripResp.trip?.status!])
-      //     },
-      //     fail:console.error,
-      // })
-    
+
+    try {
+      const setting = await getSetting()
+      if (setting.authSetting['scope.userInfo']) {
+        const userInfoRes = await getUserInfo()
+        resolveUserInfo(userInfoRes.userInfo)
+      }
+    } catch (err) {
+      rejectUserInfo(err)
+    }
+
+    // wx.request({
+    //     url:"http://localhost:8080/trip/trip123",
+    //     method:"GET",
+    //     success:res=>{
+    //       const getTripResp=coolcar.GetTripResponse.fromObject(camelcaseKeys(res.data as object,{deep:true}))
+    //       console.log(getTripResp)
+    //       console.log(coolcar.TripStatus[getTripResp.trip?.status!])
+    //     },
+    //     fail:console.error,
+    // })
+
     console.log("完成网络请求")
     // 展示本地存储能力
     const logs = wx.getStorageSync('logs') || []
@@ -52,6 +69,6 @@ App<IAppOption>({
       },
     })
 
-   
+
   },
 })
