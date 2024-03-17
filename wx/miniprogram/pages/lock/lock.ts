@@ -1,8 +1,10 @@
+import { IAppOption } from "../../appoption"
 import { TripService } from "../../service/proto_gen/trip"
 import { routing } from "../../utils/routing"
 
 // pages/lock/lock.ts
 const shareLocationKey="share_location"
+
 const uploadUrl="120.25.124.86:8081/avatar"
 Page({
 
@@ -14,7 +16,16 @@ Page({
     shareLocation:false,
     avatarURL:'',
   },
+
+  onGetUserInfo(e:any){
+    const userInfo:WechatMiniprogram.UserInfo=e.detail.userInfo
+    getApp<IAppOption>().resolveUserInfo(userInfo)    
+  },
+  onShareSwitch(e:any){
+    wx.setStorageSync(shareLocationKey,e.detail.value)
+  },
   onChooseAvatar(e:any) {
+      wx.setStorageSync(avatarUrlKey,e.detail.avatarUrl)
     this.setData({
       avatarURL:e.detail.avatarUrl ,
     })
@@ -26,9 +37,6 @@ Page({
     //     console.log(res)
     //   },
     // })
-  },
-  onShareSwitch(e:any){
-    wx.setStorageSync(shareLocationKey,e.detail.value)
   },
   onUnlockTap(){
     wx.getLocation({
@@ -68,10 +76,14 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad(opt:Record<'car_id',string>) {
+  async onLoad(opt:Record<'car_id',string>) {
+      
     const o:routing.LockOpts=opt
     this.carId=o.car_id
+    //const userInfo=await getApp<IAppOption>().globalData.userInfo
+     
     this.setData({
+        avatarURL:wx.getStorageSync(avatarUrlKey)||'',
       shareLocation:wx.getStorageSync(shareLocationKey)||false
     })
   },

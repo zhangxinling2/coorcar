@@ -17,6 +17,7 @@ const formatNumber = (n: number) => {
   const s = n.toString()
   return s[1] ? s : '0' + s
 }
+export const avatarUrlKey="avatar_url"
 export function getSetting():Promise<WechatMiniprogram.GetSettingSuccessCallbackResult>{
   return new Promise((resolve,reject)=>{
     wx.getSetting({
