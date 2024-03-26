@@ -1,7 +1,11 @@
 // index.ts
 
 import { IAppOption } from "../../appoption"
+import { ProfileService } from "../../service/proto_gen/profile"
+import { rental } from "../../service/proto_gen/rental/rental_pb"
+import { TripService } from "../../service/proto_gen/trip"
 import { routing } from "../../utils/routing"
+import { avatarUrlKey } from "../../utils/wxapi"
 
 // 获取应用实例
 const app = getApp<IAppOption>()
@@ -9,6 +13,7 @@ const app = getApp<IAppOption>()
 
 Page({
   isPageShow: false,
+  avatarURL:'',
   data: {
     setting: {
       skew: 0,
@@ -51,7 +56,8 @@ Page({
     const userInfo = await app.globalData.userInfo
     this.setData({
       userInfo,
-      hasUserInfo: true
+      hasUserInfo: true,
+      avatarURL:wx.getStorageSync(avatarUrlKey)
     })
   },
   onHide() {
@@ -61,6 +67,7 @@ Page({
     this.isPageShow = true
   },
   getUserInfo(e: any) {
+
     const userInfo: WechatMiniprogram.UserInfo = e.detail.userInfo
     app.resolveUserInfo(userInfo)
   },
@@ -110,18 +117,36 @@ Page({
     }
     moveCar()
   },
-  onScanTap() {
-    wx.scanCode({
-      success: () => {
-        const carId = 'car123'
-        const redirectURL = routing.lock({
-          car_id: carId
-        })
-        wx.navigateTo({
-          url: routing.register({
-            redirectURL: redirectURL
+  async onScanTap() {
+      const trips =await TripService.GetTrips(rental.v1.TripStatus.IN_PROGRESS)
+      if((trips.trips?.length||0)>0){
+          wx.navigateTo({
+              url:routing.driving({
+                  trip_id:trips.trips![0].id!,
+              })
           })
-        })
+          return
+      }
+    wx.scanCode({
+      success:async () => {
+        const carId = 'car123'
+        const lockURL = routing.lock({
+            car_id: carId
+          })
+        const prof=await ProfileService.GetProfile()
+        if(prof.identityStatus===rental.v1.IdentityStatus.VERIFIED){
+            wx.navigateTo({
+                url: lockURL
+              })
+        }else{
+            wx.navigateTo({
+                url:routing.register({
+                    redirectURL:lockURL
+                })
+            })
+        }
+
+        
       },
       fail: console.error
     })

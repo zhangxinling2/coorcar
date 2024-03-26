@@ -1,8 +1,20 @@
+import { ProfileService } from "../../service/proto_gen/profile";
+import { rental } from "../../service/proto_gen/rental/rental_pb";
 import { routing } from "../../utils/routing";
-
+function padString(n: number) {
+    return n < 10 ? '0'+n.toFixed(0) : n.toFixed(0)
+}
+function formatDate(millis:number){
+    const dt=new Date(millis)
+    const y=dt.getFullYear()
+    const m=dt.getMonth()+1
+    const d=dt.getDay()
+    return `${padString(y)}-${padString(m)}-${padString(d)}`
+}
 // pages/register/register.ts
 Page({
   redirectURL:'',
+  profileRefresher:0,
   /**
    * 页面的初始数据
    */
@@ -13,7 +25,21 @@ Page({
     licName:"",
     genders:['未知','男','女','其它'],
     licImgURL:'',
-    status:'UnSubmitted' as 'UnSubmitted'|'Pending'|'SubmittedFailed'|'Verified',
+    status:rental.v1.IdentityStatus[rental.v1.IdentityStatus.UNSUBMITTED],
+  },
+  rentalIdentity(i?:rental.v1.IIdentity){
+    this.setData({
+        licNo:i?.licNumber||'',
+        licName:i?.name||'',
+        genderIndex:i?.gender||0,
+        birthData:formatDate(i?.birthDataMillis||0),
+    })
+  },
+  rentalProfile(p:rental.v1.IProfile){
+    this.rentalIdentity(p.identity!)
+    this.setData({
+        status:rental.v1.IdentityStatus[p.identityStatus||0],
+    })
   },
   onUploadLic(){
     wx.chooseMedia({
@@ -43,12 +69,41 @@ Page({
     })
   },
   onSubmit(){
-    this.setData({
-      status:'Pending',
+    ProfileService.SubmitProfile({
+        licNumber:this.data.licNo,
+        name:this.data.licName,
+        gender:this.data.genderIndex,
+        birthDataMillis:Date.parse(this.data.birthData),
+    }).then(p=>{
+        this.rentalProfile(p)
+        this.scheduleProfileRefresher()
     })
-    setTimeout(()=>{
-      this.Verified()
-    },3000)
+  },
+  scheduleProfileRefresher(){
+    this.profileRefresher=setInterval(()=>{
+        ProfileService.GetProfile().then(p=>{
+            this.rentalProfile(p)
+            if(p.identityStatus!==rental.v1.IdentityStatus.PENDING){
+                this.clearProfileRefresher()
+            }
+            if(p.identityStatus===rental.v1.IdentityStatus.VERIFIED){
+                this.onLicVerified()
+            }
+        })
+    },1000)
+  },
+  clearProfileRefresher(){
+    if(this.profileRefresher){
+        clearInterval(this.profileRefresher)
+        this.profileRefresher=0
+    }
+  },
+  onLicVerified(){
+    if(this.redirectURL){
+        wx.redirectTo({
+            url:this.redirectURL,
+        })
+    }
   },
   onRetry(){
     this.setData({
@@ -78,6 +133,9 @@ Page({
     if(o.redirect){
       this.redirectURL=decodeURIComponent(o.redirect)
     }
+    ProfileService.GetProfile().then(p=>{
+       this.rentalIdentity(p.identity!)
+    })
   },
 
   /**

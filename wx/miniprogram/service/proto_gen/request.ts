@@ -9,7 +9,7 @@ export namespace Coolcar{
     }
     const AUTH_ERR='AUTH_ERR'
     export interface RequestOption<REQ,RES>{
-        method:'PUT'|'POST'|'GET'|'DEL',
+        method:'PUT'|'POST'|'GET'|'DELETE',
         path:string,
         data?:REQ,
         respUnmarshaller:(r:object)=>RES
@@ -77,7 +77,7 @@ export namespace Coolcar{
             }
             wx.request({
                 url:serverAddr+o.path,
-                method:'POST',
+                method:o.method,
                 data:o.data as WechatMiniprogram.IAnyObject,
                 success:res=>{
                     if(res.statusCode===401){

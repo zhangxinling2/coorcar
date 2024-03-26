@@ -87,6 +87,7 @@ func (s *Service) GetTrip(ctx context.Context, req *rentalpb.GetTripRequest) (*r
 }
 func (s *Service) GetTrips(ctx context.Context, req *rentalpb.GetTripsRequest) (*rentalpb.GetTripsReponse, error) {
 	aid, err := auth.AccountIdFromContext(ctx)
+	s.Logger.Info("get trips for:" + aid.String())
 	if err != nil {
 		return nil, err
 	}

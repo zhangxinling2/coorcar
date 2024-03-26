@@ -306,7 +306,7 @@ func RegisterTripServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/rental.v1.TripService/GetTrip", runtime.WithHTTPPathPattern("/v1/rantal/trip/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/rental.v1.TripService/GetTrip", runtime.WithHTTPPathPattern("/v1/rental/trip/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -331,7 +331,7 @@ func RegisterTripServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/rental.v1.TripService/GetTrips", runtime.WithHTTPPathPattern("/v1/rantal/trips"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/rental.v1.TripService/GetTrips", runtime.WithHTTPPathPattern("/v1/rental/trips"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -356,7 +356,7 @@ func RegisterTripServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/rental.v1.TripService/UpdateTrip", runtime.WithHTTPPathPattern("/v1/rantal/trip/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/rental.v1.TripService/UpdateTrip", runtime.WithHTTPPathPattern("/v1/rental/trip/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -526,7 +526,7 @@ func RegisterTripServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/rental.v1.TripService/GetTrip", runtime.WithHTTPPathPattern("/v1/rantal/trip/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/rental.v1.TripService/GetTrip", runtime.WithHTTPPathPattern("/v1/rental/trip/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -548,7 +548,7 @@ func RegisterTripServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/rental.v1.TripService/GetTrips", runtime.WithHTTPPathPattern("/v1/rantal/trips"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/rental.v1.TripService/GetTrips", runtime.WithHTTPPathPattern("/v1/rental/trips"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -570,7 +570,7 @@ func RegisterTripServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/rental.v1.TripService/UpdateTrip", runtime.WithHTTPPathPattern("/v1/rantal/trip/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/rental.v1.TripService/UpdateTrip", runtime.WithHTTPPathPattern("/v1/rental/trip/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -592,11 +592,11 @@ func RegisterTripServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 var (
 	pattern_TripService_CreateTrip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "rental", "trip", "create"}, ""))
 
-	pattern_TripService_GetTrip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "rantal", "trip", "id"}, ""))
+	pattern_TripService_GetTrip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "rental", "trip", "id"}, ""))
 
-	pattern_TripService_GetTrips_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "rantal", "trips"}, ""))
+	pattern_TripService_GetTrips_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "rental", "trips"}, ""))
 
-	pattern_TripService_UpdateTrip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "rantal", "trip", "id"}, ""))
+	pattern_TripService_UpdateTrip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "rental", "trip", "id"}, ""))
 )
 
 var (

@@ -1,7 +1,11 @@
+import { rental } from "../../service/proto_gen/rental/rental_pb"
+import { TripService } from "../../service/proto_gen/trip"
+import { formatDuration, formatFee } from "../../utils/format"
 import { routing } from "../../utils/routing"
 import { avatarUrlKey } from "../../utils/wxapi"
 interface Trip{
     id:string
+    shortId:string
     start:string
     end:string
     duration:string
@@ -28,6 +32,10 @@ interface MainItemQueryResult{
         navScrollId:string
     }
 }
+const tripStatusMap = new Map([
+    [rental.v1.TripStatus.IN_PROGRESS, '进行中'],
+    [rental.v1.TripStatus.FINISHED, '已完成'],
+])
 // pages/mytrips/mytrips.ts
 Page({
 
@@ -86,42 +94,62 @@ Page({
     const navItems:NavItem[]=[]
     let navSel=''
     let prevNav=''
-    for(let i=0;i<100;i++){
-        const mainId='main-'+i
-        const navId='nav-'+i
-        const tripId=(10001+i).toString()
-        if(!prevNav){
+    TripService.GetTrips().then(trips=>{
+        let i=0
+        let mainId=''
+        let navId=''
+        let shortId=''
+        trips.trips!.forEach(trip => {
+            mainId='main-'+i
+            navId='nav-'+i
+            shortId=trip.id?.substr(trip.id.length-6)!
+            if(!prevNav){
+                prevNav=navId
+            }
+            const tripData:Trip={
+                id:trip.id!,
+                shortId:'****'+shortId,
+                start:trip.trip?.start?.poiName||'未知',
+                end:'',
+                distance:'',
+                duration:'',
+                fee:'',
+                status:tripStatusMap.get(trip.trip?.status!)||'未知',
+            }
+            const end=trip.trip?.end
+            if(end){
+                tripData.end=end.poiName||'未知'
+                tripData.distance=end.kmDriven?.toFixed(1)+'公里'
+                const dur=formatDuration((end.timestampSec||0) - (trip.trip?.start?.timestampSec||0))
+                tripData.duration=`${dur.hh}时${dur.mm}分`
+                tripData.fee=formatFee(end.feeCent||0)
+            }
+            mainItems.push({
+                id:mainId,
+                navId:navId,
+                navScrollId:prevNav,
+                data:tripData,
+            })
+            navItems.push({
+                id:navId,
+                mainId:mainId,
+                label:shortId||'',
+            })
+            if(i===0){
+                navSel=navId
+            }
             prevNav=navId
-        }
-        mainItems.push({
-            id:mainId,
-            navId:navId,
-            navScrollId:prevNav,
-            data:{
-                id:tripId,
-                start:'东方明珠',
-                end:'迪士尼',
-                distance:'27.0公里',
-                duration:'0时44分',
-                fee:'128.00元',
-                status:'已完成',
-            },
-        })
-        navItems.push({
-            id:navId,
-            mainId:mainId,
-            label:tripId,
-        })
-        if(i===0){
-            navSel=navId
-        }
-        prevNav=navId
+            i++
+        });
         this.setData({
             mainItems,
             navItems,
             navSel,
+        },()=>{
+            this.prepareScrollStates()
         })
-    }
+    })
+       
   },
   prepareScrollStates (){
     wx.createSelectorQuery().selectAll('.main-item').fields({

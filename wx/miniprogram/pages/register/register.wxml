@@ -14,11 +14,11 @@
         <view class="lic-form margin-top-lg" >
             <view class="cu-form-group margin-top">
                 <view class="title">驾驶证号</view>
-                <input placeholder="驾驶证号" value="{{licNo}}" disabled="{{status!=='UnSubmitted'}}"></input>
+                <input placeholder="驾驶证号" model:value="{{licNo}}" disabled="{{status!=='UnSubmitted'}}"></input>
             </view>
             <view class="cu-form-group ">
                 <view class="title">姓名</view>
-                <input placeholder="姓名" value="{{licName}}" disabled="{{status!=='UnSubmitted'}}"></input>
+                <input placeholder="姓名" model:value="{{licName}}" disabled="{{status!=='UnSubmitted'}}"></input>
             </view>
             <view class="cu-form-group ">
                 <view class="title">普通选择</view>
@@ -37,10 +37,10 @@
                 </picker>
             </view>
         </view>
-        <view >
-            <button bindtap="onSubmit" wx:if="{{status==='UnSubmitted'}}" class="cu-btn bg-red margin-tb-sm lg">递交审查</button>
-            <button wx:if="{{status==='Pending'}}" class="cu-btn block bg-red margin-tb-sm lg" disabled="{{true}}">审查中</button>
-            <button bindtap="onRetry" wx:if="{{status==='SubmittedFailed'}}" class="cu-btn bg-red margin-tb-sm lg">重新审查</button>
-        </view>
+        
+            <button bindtap="onSubmit" wx:if="{{status==='UNSUBMITTED'}}" class="cu-btn bg-red margin-tb-sm lg">递交审查</button>
+            <button wx:if="{{status==='PENDING'}}" class="cu-btn block bg-red margin-tb-sm lg" disabled="{{true}}">审查中</button>
+            <button bindtap="onRetry" wx:if="{{status==='VERIFIED'}}" class="cu-btn bg-red margin-tb-sm lg">重新审查</button>
+        
     </block>
 </view>

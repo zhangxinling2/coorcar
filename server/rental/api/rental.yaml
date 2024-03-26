@@ -7,11 +7,11 @@ http:
       post: /v1/rental/trip/create
       body: "*"
     - selector: rental.v1.TripService.GetTrip
-      get: /v1/rantal/trip/{id}
+      get: /v1/rental/trip/{id}
     - selector: rental.v1.TripService.GetTrips
-      get: /v1/rantal/trips
+      get: /v1/rental/trips
     - selector: rental.v1.TripService.UpdateTrip
-      put: /v1/rantal/trip/{id}
+      put: /v1/rental/trip/{id}
       body: "*"
     - selector: rental.v1.ProfileService.SubmitProfile
       post: /v1/rental/profile

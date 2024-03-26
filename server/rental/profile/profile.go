@@ -5,6 +5,7 @@ import (
 	rentalpb "coolcar/rental/api/gen/v1"
 	"coolcar/rental/profile/dao"
 	"coolcar/shared/auth"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -47,6 +48,13 @@ func (s *Service) SubmitProfile(ctx context.Context, i *rentalpb.Identity) (*ren
 		s.Logger.Error("cannot submit profile", zap.Error(err))
 		return nil, err
 	}
+	go func() {
+		time.Sleep(time.Second * 3)
+		s.Mongo.UpdateProfile(context.Background(), aid, rentalpb.IdentityStatus_PENDING, &rentalpb.Profile{
+			Identity:       i,
+			IdentityStatus: rentalpb.IdentityStatus_VERIFIED,
+		})
+	}()
 	return p, nil
 }
 func (s *Service) ClearProfile(ctx context.Context, req *rentalpb.ClearProfileRequest) (*rentalpb.Profile, error) {
